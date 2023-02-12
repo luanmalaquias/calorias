@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+</head>
+
+<body>
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-12">
+                <div id="row-total-calorias" class="row mb-3">
+                    <div class="input-group">
+                        <input type="number" class="form-control"
+                            placeholder="Quantidade total de calorias nesta refeição" aria-describedby="basic-addon1"
+                            id="totalCaloriasRefeicao">
+                    </div>
+                </div>
+
+                <div id="itens" class="row mb-3">
+
+                    <div class="input-group mt-1 mb-1">
+                        <input type="text" class="form-control" placeholder="Item" aria-describedby="basic-addon1">
+                        <input type="number" class="form-control" placeholder="Porção em gramas"
+                            aria-describedby="basic-addon1">
+                        <input type="number" class="form-control" placeholder="Calorias"
+                            aria-describedby="basic-addon1">
+                        <input type="number" class="form-control" placeholder="Porcentagem de cobertura"
+                            aria-describedby="basic-addon1">
+                    </div>
+
+                </div>
+
+                <div id="row-add-itens" class="row mb-3">
+                    <div class="col">
+                        <button type="button" class="btn btn-primary mb-1" onclick="adicionarItem()">+ item</button>
+                        <button type="button" class="btn btn-primary mb-1" onclick="calcular()">Calcular</button>
+                    </div>
+
+                </div>
+
+                <div id="resultado" class="row mb-3">
+                </div>
+
+                <div class="row mt-5">
+                    <table class="table text-center" id="tabelaItens">
+                        <thead>
+                            <tr>
+                                <th scope="col">Item</th>
+                                <th scope="col">Porção</th>
+                                <th scope="col">Calorias</th>
+                                <th scope="col"></th>
+                                <th scope="col"><button type="button" class="btn btn-danger btn-sm"
+                                        onclick="limparHistorico()">Limpar historico</button></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+
+<script>
+
+    var itensCache = localStorage.getItem('itens');
+
+    function adicionarItem() {
+        $("#itens").append('<div class="input-group mt-1 mb-1"><input type="text" class="form-control" placeholder="Item" aria-describedby="basic-addon1"><input type="number" class="form-control" placeholder="Porção em gramas" aria-describedby="basic-addon1"><input type="number" class="form-control" placeholder="Calorias" aria-describedby="basic-addon1"><input type="number" class="form-control" placeholder="Porcentagem de cobertura" aria-describedby="basic-addon1"></div>');
+    }
+
+    function calcular() {
+        totalCaloriasRefeicao = document.getElementById('totalCaloriasRefeicao').value
+        totalCalorias = 0
+
+        $('#resultado').empty()
+        $('#resultado').append('<hr><h4>Resultado</h4>');
+        $('#resultado').append(`<p>Você vai precisar de:</p>`);
+
+        itens = document.getElementById('itens').children
+        for (let inputGroup = 0; inputGroup < itens.length; inputGroup++) {
+
+            let nomeDoItem = itens[inputGroup].children[0].value
+            let porcao = itens[inputGroup].children[1].value
+            let calorias = itens[inputGroup].children[2].value
+            let porcentagem = itens[inputGroup].children[3].value
+
+            caloriasPelaPorcentagem = (porcentagem / 100) * totalCaloriasRefeicao
+            totalCalorias += caloriasPelaPorcentagem
+            gramas = (caloriasPelaPorcentagem * porcao) / calorias
+
+            $('#resultado').append(`<p>${gramas.toFixed(0)}g de <em>${nomeDoItem}</em> para atingir ${caloriasPelaPorcentagem.toFixed(0)}Kcal neste item</p>`);
+        }
+
+        $('#resultado').append(`<p>Nessa quantidade você atinge: ${totalCalorias.toFixed(0)}Kcal nesta refeição.</p>`);
+
+        addItem();
+    }
+
+    function addItem() {
+        itensCache = localStorage.getItem('itens');
+
+        // creating object
+        itens = document.getElementById('itens').children
+        arrayItens = []
+        for (let inputGroup = 0; inputGroup < itens.length; inputGroup++) {
+
+            let nomeDoItem = itens[inputGroup].children[0].value
+            let porcao = itens[inputGroup].children[1].value
+            let calorias = itens[inputGroup].children[2].value
+            let porcentagem = itens[inputGroup].children[3].value
+
+            if (nomeDoItem != "" && porcao != "" && calorias != "") {
+                arrayItens.push({ "nomeItem": nomeDoItem, "porcao": porcao, "calorias": calorias })
+            }
+
+        }
+
+        // se encontrado cache existente
+        if (itensCache) {
+            var itensCacheJson = JSON.parse(itensCache)
+
+            for (let i = 0; i < arrayItens.length; i++) {
+                let hasNomeItem = itensCacheJson.some(e => e['nomeItem'] == arrayItens[i]['nomeItem'])
+                if (!hasNomeItem) {
+                    itensCacheJson.push(arrayItens[i])
+                }
+            }
+            // Put the object into storage
+            localStorage.setItem('itens', JSON.stringify(itensCacheJson));
+        } else {
+            if (arrayItens != []) {
+                // criando storage
+                localStorage.setItem('itens', JSON.stringify(arrayItens));
+            }
+        }
+        atualizarTabela();
+
+    }
+
+
+    function atualizarTabela() {
+        $("#tabelaItens td").detach();
+        retrievedObject = localStorage.getItem('itens');
+
+        // hidde table
+        $("#tabelaItens").addClass("d-none");
+        if (retrievedObject) {
+            // show table
+            $("#tabelaItens").removeClass("d-none");
+
+            // Convert to json
+            var retrievedObjectToJson = JSON.parse(retrievedObject)
+
+            for (let i = 0; i < retrievedObjectToJson.length; i++) {
+                const element = retrievedObjectToJson[i];
+                $('#tabelaItens').append(`<tr><td>${element["nomeItem"]}</td><td>${element["porcao"]}</td><td>${element["calorias"]}<td></i><button type="button" class="btn btn-primary btn-sm" onClick="addItemNoCalculo(${i})"><i class="bi bi-plus-lg"></button></td><td></i><button type="button" class="btn btn-secondary btn-sm" onClick="apagarItemDoHistorico(${i})"><i class="bi bi-trash"></i></button></td></tr></tr>`)
+            }
+        }
+    }
+
+    function addItemNoCalculo(index) {
+        itensCache = localStorage.getItem('itens');
+        var itensCacheJson = JSON.parse(itensCache)
+
+        let nomeDoItem = itensCacheJson[index]["nomeItem"]
+        let porcao = itensCacheJson[index]["porcao"]
+        let calorias = itensCacheJson[index]["calorias"]
+        let porcentagem = 100
+
+        $("#itens").append(`<div class="input-group mt-1 mb-1"><input type="text" class="form-control" placeholder="Item" aria-describedby="basic-addon1" value="${nomeDoItem}"><input type="number" class="form-control" placeholder="Porção em gramas" aria-describedby="basic-addon1" value="${porcao}"><input type="number" class="form-control" placeholder="Calorias" aria-describedby="basic-addon1" value="${calorias}"><input type="number" class="form-control" placeholder="Porcentagem de cobertura" aria-describedby="basic-addon1" value="${porcentagem}"></div>`);
+    }
+
+    function apagarItemDoHistorico(index) {
+        itensCache = localStorage.getItem('itens');
+        var itensCacheJson = JSON.parse(itensCache)
+
+        var newItensCacheJson = itensCacheJson.splice(index, 1);
+        localStorage.setItem('itens', JSON.stringify(itensCacheJson));
+        atualizarTabela();
+    }
+
+    function limparHistorico() {
+        localStorage.clear();
+        atualizarTabela();
+    }
+
+    atualizarTabela();
+
+</script>
+
+</html>
