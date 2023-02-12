@@ -16,6 +16,7 @@
     <div class="container mt-5">
         <div class="row">
             <div class="col-12">
+
                 <div id="row-total-calorias" class="row mb-3">
                     <div class="input-group">
                         <input type="number" class="form-control"
@@ -25,7 +26,6 @@
                 </div>
 
                 <div id="itens" class="row mb-3">
-
                     <div class="input-group mt-1 mb-1">
                         <input type="text" class="form-control" placeholder="Item" aria-describedby="basic-addon1">
                         <input type="number" class="form-control" placeholder="Porção em gramas"
@@ -35,7 +35,6 @@
                         <input type="number" class="form-control" placeholder="Porcentagem de cobertura"
                             aria-describedby="basic-addon1">
                     </div>
-
                 </div>
 
                 <div id="row-add-itens" class="row mb-3">
@@ -43,13 +42,14 @@
                         <button type="button" class="btn btn-primary mb-1" onclick="adicionarItem()">+ item</button>
                         <button type="button" class="btn btn-primary mb-1" onclick="calcular()">Calcular</button>
                     </div>
-
                 </div>
 
                 <div id="resultado" class="row mb-3">
                 </div>
 
-                <div class="row mt-5">
+                <div class="row mt-5" id="row-historico">
+                    <hr>
+                    <h4>Histórico</h4>
                     <table class="table text-center" id="tabelaItens">
                         <thead>
                             <tr>
@@ -154,10 +154,10 @@
         retrievedObject = localStorage.getItem('itens');
 
         // hidde table
-        $("#tabelaItens").addClass("d-none");
+        $("#row-historico").addClass("d-none");
         if (retrievedObject) {
             // show table
-            $("#tabelaItens").removeClass("d-none");
+            $("#row-historico").removeClass("d-none");
 
             // Convert to json
             var retrievedObjectToJson = JSON.parse(retrievedObject)
