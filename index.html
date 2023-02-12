@@ -94,12 +94,15 @@
             let porcao = itens[inputGroup].children[1].value
             let calorias = itens[inputGroup].children[2].value
             let porcentagem = itens[inputGroup].children[3].value
+            porcentagem = porcentagem == '' ? 100 : porcentagem
 
             caloriasPelaPorcentagem = (porcentagem / 100) * totalCaloriasRefeicao
             totalCalorias += caloriasPelaPorcentagem
             gramas = (caloriasPelaPorcentagem * porcao) / calorias
 
-            $('#resultado').append(`<p>${gramas.toFixed(0)}g de <em>${nomeDoItem}</em> para atingir ${caloriasPelaPorcentagem.toFixed(0)}Kcal neste item</p>`);
+            if (nomeDoItem != '' && porcao != '' && calorias != ''){
+                $('#resultado').append(`<p>${gramas.toFixed(0)}g de <em>${nomeDoItem}</em> para atingir ${caloriasPelaPorcentagem.toFixed(0)}Kcal neste item</p>`);
+            }
         }
 
         $('#resultado').append(`<p>Nessa quantidade você atinge: ${totalCalorias.toFixed(0)}Kcal nesta refeição.</p>`);
